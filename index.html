@@ -96,7 +96,6 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  
 }
 .shade {
   position: absolute;
@@ -124,19 +123,30 @@ p {
   font-size: 15px;
   margin: 0;
 }
-.video-btn {
+.btn-row {
+  display: flex;
+  gap: 10px;
   margin-top: 23px;
+}
+.video-btn, .photo-btn {
   border: 0;
   border-radius: 14px;
   padding: 15px 18px;
-  background: var(--accent);
-  color: #101c26;
   font-weight: 800;
   font-size: 15px;
   cursor: pointer;
-  width: 100%;
+  flex: 1;
 }
-.video-btn:active, .nav button:active { transform: scale(.97); }
+.video-btn {
+  background: var(--accent);
+  color: #101c26;
+}
+.photo-btn {
+  background: #1b2030;
+  color: var(--text);
+  border: 1px solid #394057;
+}
+.video-btn:active, .photo-btn:active, .nav button:active { transform: scale(.97); }
 .nav {
   display: flex;
   align-items: center;
@@ -210,6 +220,27 @@ video {
   font-size: 13px;
   margin-top: 12px;
 }
+.photo-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 11;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,.97);
+}
+.photo-modal.open { display: flex; }
+.photo-modal img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.photo-modal .close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 12;
+}
 </style>
 </head>
 <body>
@@ -230,6 +261,9 @@ video {
           <div class="number">01 — APRESENTAÇÃO</div>
           <h1>Guerreiras das Águas</h1>
           <p>Uma história que merece ser vista e lembrada.</p>
+          <div class="btn-row">
+            <button class="photo-btn" onclick="openPhoto('fotos/foto1.jpg')">🔍 Ver foto</button>
+          </div>
         </div>
       </section>
 
@@ -240,7 +274,10 @@ video {
           <div class="number">02 — ASSISTA</div>
           <h1>Um momento especial</h1>
           <p>Toque no botão para abrir o vídeo.</p>
-          <button class="video-btn" id="openVideo">▶ &nbsp; Abrir vídeo</button>
+          <div class="btn-row">
+            <button class="video-btn" id="openVideo">▶ &nbsp; Abrir vídeo</button>
+            <button class="photo-btn" onclick="openPhoto('fotos/foto2.jpg')">🔍 Ver foto</button>
+          </div>
         </div>
       </section>
 
@@ -251,6 +288,9 @@ video {
           <div class="number">03 — GALERIA</div>
           <h1>Uma história em imagens</h1>
           <p>Cada imagem guarda um momento.</p>
+          <div class="btn-row">
+            <button class="photo-btn" onclick="openPhoto('fotos/foto3.jpg')">🔍 Ver foto</button>
+          </div>
         </div>
       </section>
 
@@ -261,6 +301,9 @@ video {
           <div class="number">04 — GALERIA</div>
           <h1>Força e união</h1>
           <p>Momentos que merecem ser compartilhados.</p>
+          <div class="btn-row">
+            <button class="photo-btn" onclick="openPhoto('fotos/foto4.jpg')">🔍 Ver foto</button>
+          </div>
         </div>
       </section>
 
@@ -271,6 +314,9 @@ video {
           <div class="number">05 — GALERIA</div>
           <h1>Memórias</h1>
           <p>Uma lembrança de cada vez.</p>
+          <div class="btn-row">
+            <button class="photo-btn" onclick="openPhoto('fotos/foto5.jpg')">🔍 Ver foto</button>
+          </div>
         </div>
       </section>
 
@@ -281,6 +327,9 @@ video {
           <div class="number">06 — GALERIA</div>
           <h1>Histórias que inspiram</h1>
           <p>Compartilhando experiências e conquistas.</p>
+          <div class="btn-row">
+            <button class="photo-btn" onclick="openPhoto('fotos/foto6.jpg')">🔍 Ver foto</button>
+          </div>
         </div>
       </section>
 
@@ -291,6 +340,9 @@ video {
           <div class="number">07 — FINAL</div>
           <h1>Obrigada por assistir!</h1>
           <p>Fim da apresentação. Você pode voltar e rever os momentos.</p>
+          <div class="btn-row">
+            <button class="photo-btn" onclick="openPhoto('fotos/foto7.jpg')">🔍 Ver foto</button>
+          </div>
         </div>
       </section>
     </div>
@@ -311,8 +363,13 @@ video {
       <button class="close" id="closeVideo" aria-label="Fechar">×</button>
     </div>
     <video id="player" controls playsinline preload="metadata" src="video/video.mp4"></video>
-    <p id="videoMessage">O vídeo será colocado aqui quando adicionarmos o arquivo.</p>
+    <p id="videoMessage"></p>
   </div>
+</div>
+
+<div class="photo-modal" id="photoModal" role="dialog" aria-modal="true" aria-label="Foto em tela cheia">
+  <button class="close" id="closePhoto" aria-label="Fechar">×</button>
+  <img id="photoFull" src="" alt="Foto em tela cheia">
 </div>
 
 <script>
@@ -363,18 +420,14 @@ viewport.addEventListener('touchend', e => {
 document.addEventListener('keydown', e => {
   if (e.key === 'ArrowRight') go(current + 1);
   if (e.key === 'ArrowLeft') go(current - 1);
-  if (e.key === 'Escape') closeModal();
+  if (e.key === 'Escape') { closeModal(); closePhotoModal(); }
 });
 
 const modal = document.getElementById('modal');
 const player = document.getElementById('player');
-const videoMessage = document.getElementById('videoMessage');
 
 function openModal() {
   modal.classList.add('open');
-  if (!player.querySelector('source')) {
-    videoMessage.textContent = 'Ainda falta adicionar o arquivo de vídeo.';
-  }
 }
 function closeModal() {
   player.pause();
@@ -385,6 +438,22 @@ document.getElementById('closeVideo').addEventListener('click', closeModal);
 modal.addEventListener('click', e => {
   if (e.target === modal) closeModal();
 });
+
+const photoModal = document.getElementById('photoModal');
+const photoFull = document.getElementById('photoFull');
+
+function openPhoto(src) {
+  photoFull.src = src;
+  photoModal.classList.add('open');
+}
+function closePhotoModal() {
+  photoModal.classList.remove('open');
+}
+document.getElementById('closePhoto').addEventListener('click', closePhotoModal);
+photoModal.addEventListener('click', e => {
+  if (e.target === photoModal) closePhotoModal();
+});
+
 go(0);
 </script>
 </body>
