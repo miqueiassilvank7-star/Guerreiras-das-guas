@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#10131f">
+<title>Guerreiras das Águas</title>
+<style>
+:root {
+  --bg: #10131f;
+  --accent: #8ee7dc;
+  --text: #f7f8ff;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, sans-serif;
+  min-height: 100dvh;
+  overflow: hidden;
+}
+.app {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: 18px 16px 15px;
+  gap: 14px;
+}
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.brand {
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 800;
+}
+.counter { font-size: 13px; color: #b8c0d8; }
+.progress {
+  height: 3px;
+  background: #303448;
+  border-radius: 10px;
+  overflow: hidden;
+}
+#bar {
+  width: 14.285%;
+  height: 100%;
+  background: var(--accent);
+  transition: width .35s;
+}
+.viewport {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 25px;
+  background: #1a2030;
+  border: 1px solid #343b50;
+  touch-action: pan-y;
+}
+.track {
+  display: flex;
+  height: 100%;
+  transition: transform .4s cubic-bezier(.2,.8,.2,1);
+}
+.slide {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 25px 22px;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 25% 20%, #356b78 0, transparent 50%),
+    linear-gradient(145deg, #202b46, #121622 75%);
+}
+.slide:nth-child(2n) {
+  background:
+    radial-gradient(ellipse at 75% 25%, #376e69 0, transparent 50%),
+    linear-gradient(145deg, #283b4a, #151824 75%);
+}
+.photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: none;
+}
+.slide.has-photo .photo { display: block; }
+.shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(transparent 25%, rgba(8,12,23,.85));
+  pointer-events: none;
+}
+.content { position: relative; z-index: 1; }
+.number {
+  font-size: 12px;
+  color: var(--accent);
+  letter-spacing: 3px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+h1 {
+  font-size: clamp(29px, 8vw, 43px);
+  line-height: 1.08;
+  margin: 0 0 12px;
+  letter-spacing: -1.2px;
+}
+p {
+  color: #d3d9e8;
+  line-height: 1.6;
+  font-size: 15px;
+  margin: 0;
+}
+.video-btn {
+  margin-top: 23px;
+  border: 0;
+  border-radius: 14px;
+  padding: 15px 18px;
+  background: var(--accent);
+  color: #101c26;
+  font-weight: 800;
+  font-size: 15px;
+  cursor: pointer;
+  width: 100%;
+}
+.video-btn:active, .nav button:active { transform: scale(.97); }
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.nav button {
+  border: 1px solid #394057;
+  background: #1b2030;
+  color: white;
+  border-radius: 14px;
+  min-width: 52px;
+  height: 46px;
+  font-size: 20px;
+  cursor: pointer;
+}
+.nav button:disabled { opacity: .3; }
+.dots { display: flex; justify-content: center; gap: 7px; }
+.dot {
+  border: 0;
+  padding: 0;
+  height: 7px;
+  width: 7px;
+  border-radius: 20px;
+  background: #555c72;
+  cursor: pointer;
+  transition: width .25s, background .25s;
+}
+.dot.active { width: 23px; background: var(--accent); }
+.hint {
+  text-align: center;
+  color: #858da5;
+  font-size: 11px;
+}
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(5,8,16,.94);
+}
+.modal.open { display: flex; }
+.modal-box { width: 100%; max-width: 650px; }
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.modal-head h2 { font-size: 19px; margin: 0; }
+.close {
+  color: white;
+  background: #252c3e;
+  border: 1px solid #424960;
+  border-radius: 12px;
+  width: 42px;
+  height: 42px;
+  font-size: 22px;
+}
+video {
+  width: 100%;
+  max-height: 70dvh;
+  border-radius: 15px;
+  background: black;
+}
+#videoMessage {
+  color: #b8c0d8;
+  font-size: 13px;
+  margin-top: 12px;
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">Guerreiras das Águas</div>
+    <div class="counter" id="counter">01 / 07</div>
+  </header>
+
+  <div class="progress"><div id="bar"></div></div>
+
+  <main class="viewport" id="viewport">
+    <div class="track" id="track">
+      <section class="slide">
+        <img class="photo" src="fotos/foto1.jpg" alt="Foto 1">
+        <div class="shade"></div>
+        <div class="content">
+          <div class="number">01 — APRESENTAÇÃO</div>
+          <h1>Guerreiras das Águas</h1>
+          <p>Uma história que merece ser vista e lembrada.</p>
+        </div>
+      </section>
+
+      <section class="slide">
+        <img class="photo" src="fotos/foto2.jpg" alt="Foto 2">
+        <div class="shade"></div>
+        <div class="content">
+          <div class="number">02 — ASSISTA</div>
+          <h1>Um momento especial</h1>
+          <p>Toque no botão para abrir o vídeo.</p>
+          <button class="video-btn" id="openVideo">▶ &nbsp; Abrir vídeo</button>
+        </div>
+      </section>
+
+      <section class="slide">
+        <img class="photo" src="fotos/foto3.jpg" alt="Foto 3">
+        <div class="shade"></div>
+        <div class="content">
+          <div class="number">03 — GALERIA</div>
+          <h1>Uma história em imagens</h1>
+          <p>Cada imagem guarda um momento.</p>
+        </div>
+      </section>
+
+      <section class="slide">
+        <img class="photo" src="fotos/foto4.jpg" alt="Foto 4">
+        <div class="shade"></div>
+        <div class="content">
+          <div class="number">04 — GALERIA</div>
+          <h1>Força e união</h1>
+          <p>Momentos que merecem ser compartilhados.</p>
+        </div>
+      </section>
+
+      <section class="slide">
+        <img class="photo" src="fotos/foto5.jpg" alt="Foto 5">
+        <div class="shade"></div>
+        <div class="content">
+          <div class="number">05 — GALERIA</div>
+          <h1>Memórias</h1>
+          <p>Uma lembrança de cada vez.</p>
+        </div>
+      </section>
+
+      <section class="slide">
+        <img class="photo" src="fotos/foto6.jpg" alt="Foto 6">
+        <div class="shade"></div>
+        <div class="content">
+          <div class="number">06 — GALERIA</div>
+          <h1>Histórias que inspiram</h1>
+          <p>Compartilhando experiências e conquistas.</p>
+        </div>
+      </section>
+
+      <section class="slide">
+        <img class="photo" src="fotos/foto7.jpg" alt="Foto 7">
+        <div class="shade"></div>
+        <div class="content">
+          <div class="number">07 — FINAL</div>
+          <h1>Obrigada por assistir!</h1>
+          <p>Fim da apresentação. Você pode voltar e rever os momentos.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <nav class="nav">
+    <button id="prev" aria-label="Slide anterior" disabled>‹</button>
+    <div class="dots" id="dots"></div>
+    <button id="next" aria-label="Próximo slide">›</button>
+  </nav>
+  <div class="hint">DESLIZE PARA OS LADOS PARA NAVEGAR</div>
+</div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Reprodutor de vídeo">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Seu vídeo</h2>
+      <button class="close" id="closeVideo" aria-label="Fechar">×</button>
+    </div>
+    <video id="player" controls playsinline preload="metadata"></video>
+    <p id="videoMessage">O vídeo será colocado aqui quando adicionarmos o arquivo.</p>
+  </div>
+</div>
+
+<script>
+const track = document.getElementById('track');
+const slides = [...document.querySelectorAll('.slide')];
+const dotsBox = document.getElementById('dots');
+const counter = document.getElementById('counter');
+const bar = document.getElementById('bar');
+const prev = document.getElementById('prev');
+const next = document.getElementById('next');
+let current = 0;
+
+slides.forEach((_, i) => {
+  const dot = document.createElement('button');
+  dot.className = 'dot' + (i === 0 ? ' active' : '');
+  dot.setAttribute('aria-label', 'Ir para o slide ' + (i + 1));
+  dot.addEventListener('click', () => go(i));
+  dotsBox.appendChild(dot);
+});
+const dots = [...dotsBox.children];
+
+function go(index) {
+  current = Math.max(0, Math.min(slides.length - 1, index));
+  track.style.transform = `translateX(-${current * 100}%)`;
+  counter.textContent = String(current + 1).padStart(2, '0') + ' / 07';
+  bar.style.width = ((current + 1) / slides.length * 100) + '%';
+  dots.forEach((d, i) => d.classList.toggle('active', i === current));
+  prev.disabled = current === 0;
+  next.disabled = current === slides.length - 1;
+}
+prev.addEventListener('click', () => go(current - 1));
+next.addEventListener('click', () => go(current + 1));
+
+let startX = 0, startY = 0;
+const viewport = document.getElementById('viewport');
+viewport.addEventListener('touchstart', e => {
+  startX = e.changedTouches[0].clientX;
+  startY = e.changedTouches[0].clientY;
+}, {passive: true});
+viewport.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - startX;
+  const dy = e.changedTouches[0].clientY - startY;
+  if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+    go(current + (dx < 0 ? 1 : -1));
+  }
+}, {passive: true});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') go(current + 1);
+  if (e.key === 'ArrowLeft') go(current - 1);
+  if (e.key === 'Escape') closeModal();
+});
+
+const modal = document.getElementById('modal');
+const player = document.getElementById('player');
+const videoMessage = document.getElementById('videoMessage');
+
+function openModal() {
+  modal.classList.add('open');
+  if (!player.querySelector('source')) {
+    videoMessage.textContent = 'Ainda falta adicionar o arquivo de vídeo.';
+  }
+}
+function closeModal() {
+  player.pause();
+  modal.classList.remove('open');
+}
+document.getElementById('openVideo').addEventListener('click', openModal);
+document.getElementById('closeVideo').addEventListener('click', closeModal);
+modal.addEventListener('click', e => {
+  if (e.target === modal) closeModal();
+});
+go(0);
+</script>
+</body>
+</html>
