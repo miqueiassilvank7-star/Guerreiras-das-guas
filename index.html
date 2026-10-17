@@ -418,9 +418,15 @@ viewport.addEventListener('touchend', e => {
 }, {passive: true});
 
 document.addEventListener('keydown', e => {
+  if (photoModal.classList.contains('open')) {
+    if (e.key === 'ArrowRight') goPhoto(1);
+    if (e.key === 'ArrowLeft') goPhoto(-1);
+    if (e.key === 'Escape') closePhotoModal();
+    return;
+  }
   if (e.key === 'ArrowRight') go(current + 1);
   if (e.key === 'ArrowLeft') go(current - 1);
-  if (e.key === 'Escape') { closeModal(); closePhotoModal(); }
+  if (e.key === 'Escape') closeModal();
 });
 
 const modal = document.getElementById('modal');
@@ -441,10 +447,21 @@ modal.addEventListener('click', e => {
 
 const photoModal = document.getElementById('photoModal');
 const photoFull = document.getElementById('photoFull');
+const photoList = ['fotos/foto1.jpg','fotos/foto2.jpg','fotos/foto3.jpg','fotos/foto4.jpg','fotos/foto5.jpg','fotos/foto6.jpg','fotos/foto7.jpg'];
+let photoIndex = 0;
 
 function openPhoto(src) {
-  photoFull.src = src;
+  photoIndex = photoList.indexOf(src);
+  if (photoIndex === -1) photoIndex = 0;
+  showPhoto();
   photoModal.classList.add('open');
+}
+function showPhoto() {
+  photoFull.src = photoList[photoIndex];
+}
+function goPhoto(step) {
+  photoIndex = (photoIndex + step + photoList.length) % photoList.length;
+  showPhoto();
 }
 function closePhotoModal() {
   photoModal.classList.remove('open');
@@ -453,6 +470,19 @@ document.getElementById('closePhoto').addEventListener('click', closePhotoModal)
 photoModal.addEventListener('click', e => {
   if (e.target === photoModal) closePhotoModal();
 });
+
+let pStartX = 0, pStartY = 0;
+photoModal.addEventListener('touchstart', e => {
+  pStartX = e.changedTouches[0].clientX;
+  pStartY = e.changedTouches[0].clientY;
+}, {passive: true});
+photoModal.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - pStartX;
+  const dy = e.changedTouches[0].clientY - pStartY;
+  if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+    goPhoto(dx < 0 ? 1 : -1);
+  }
+}, {passive: true});
 
 go(0);
 </script>
