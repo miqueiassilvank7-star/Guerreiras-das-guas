@@ -96,9 +96,8 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: none;
+  
 }
-.slide.has-photo .photo { display: block; }
 .shade {
   position: absolute;
   inset: 0;
@@ -311,7 +310,7 @@ video {
       <h2>Seu vídeo</h2>
       <button class="close" id="closeVideo" aria-label="Fechar">×</button>
     </div>
-    <video id="player" controls playsinline preload="metadata"></video>
+    <video id="player" controls playsinline preload="metadata" src="video/video.mp4"></video>
     <p id="videoMessage">O vídeo será colocado aqui quando adicionarmos o arquivo.</p>
   </div>
 </div>
